@@ -6,16 +6,23 @@ function App() {
   
   const {
     asyncState: { data },
+    doCallAdd
   } = useAsync({ service: Service.getTenants, callOnLoad: true });
 
   const [formValues, setFormValues] = useState({
     nameInput: '',
     dateInput: '',
-    selectStatus: 'CURRENT'
+    selectStatus: 'CURRENT',
+    showForm: false
   })
 
   const handleSave = (e) => {
     e.preventDefault()
+    doCallAdd(Service.addTenant, {
+      name: formValues.nameInput,
+      paymentStatus: formValues.selectStatus,
+      leaseEndDate: formValues.dateInput,
+    });
   }
 
   const handleDelete = (e) => {
@@ -26,10 +33,6 @@ function App() {
     const { name, value } = e.target;
     setFormValues((prev) => ({ ...prev, [name]: value }))
   };
-
-  useEffect(() => {
-    console.log(formValues)
-  }, [formValues])
 
   return (
     <>
@@ -78,28 +81,62 @@ function App() {
         </table>
       </div>
       <div className="container">
-        <button className="btn btn-secondary">Add Tenant</button>
+        <button
+          className="btn btn-secondary"
+          onClick={() =>
+            setFormValues((prev) => ({
+              ...prev,
+              showForm: true,
+            }))
+          }
+        >
+          Add Tenant
+        </button>
       </div>
       <div className="container">
-        <form>
-          <div className="form-group">
-            <label>Name</label>
-            <input className="form-control" name='nameInput' value={formValues.nameInput} onChange={handleChangeForm} />
-          </div>
-          <div className="form-group">
-            <label>Payment Status</label>
-            <select className="form-control" name='selectStatus' onChange={handleChangeForm}>
-              <option name='current' value='CURRENT'>CURRENT</option>
-              <option name='late' value='LATE'>LATE</option>
-            </select>
-          </div>
-          <div className="form-group">
-            <label>Lease End Date</label>
-            <input className="form-control" name='dateInput' value={formValues.dateInput} onChange={handleChangeForm} />
-          </div>
-          <button className="btn btn-primary" onClick={handleSave}>Save</button>
-          <button className="btn" onClick={handleDelete}>Cancel</button>
-        </form>
+        {formValues.showForm && (
+          <form>
+            <div className="form-group">
+              <label>Name</label>
+              <input
+                className="form-control"
+                name="nameInput"
+                value={formValues.nameInput}
+                onChange={handleChangeForm}
+              />
+            </div>
+            <div className="form-group">
+              <label>Payment Status</label>
+              <select
+                className="form-control"
+                name="selectStatus"
+                onChange={handleChangeForm}
+              >
+                <option name="current" value="CURRENT">
+                  CURRENT
+                </option>
+                <option name="late" value="LATE">
+                  LATE
+                </option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Lease End Date</label>
+              <input
+                className="form-control"
+                name="dateInput"
+                value={formValues.dateInput}
+                onChange={handleChangeForm}
+              />
+            </div>
+            <button className="btn btn-primary" onClick={handleSave}>
+              Save
+            </button>
+            <button className="btn" onClick={handleDelete}>
+              Cancel
+            </button>
+          </form>
+        )}
       </div>
     </>
   );
