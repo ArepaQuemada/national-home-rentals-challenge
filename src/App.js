@@ -1,10 +1,36 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Service } from './Service';
 import { useAsync } from "./hooks/useAsync";
 
 function App() {
   
-  const { data } = useAsync(Service.getTenants)
+  const {
+    asyncState: { data },
+  } = useAsync({ service: Service.getTenants, callOnLoad: true });
+
+  const [formValues, setFormValues] = useState({
+    nameInput: '',
+    dateInput: '',
+    selectStatus: 'CURRENT'
+  })
+
+  const handleSave = (e) => {
+    e.preventDefault()
+  }
+
+  const handleDelete = (e) => {
+    e.preventDefault()
+  }
+
+  const handleChangeForm = (e) => {
+    const { name, value } = e.target;
+    setFormValues((prev) => ({ ...prev, [name]: value }))
+  };
+
+  useEffect(() => {
+    console.log(formValues)
+  }, [formValues])
+
   return (
     <>
       <div className="container">
@@ -58,21 +84,21 @@ function App() {
         <form>
           <div className="form-group">
             <label>Name</label>
-            <input className="form-control" />
+            <input className="form-control" name='nameInput' value={formValues.nameInput} onChange={handleChangeForm} />
           </div>
           <div className="form-group">
             <label>Payment Status</label>
-            <select className="form-control">
-              <option>CURRENT</option>
-              <option>LATE</option>
+            <select className="form-control" name='selectStatus' onChange={handleChangeForm}>
+              <option name='current' value='CURRENT'>CURRENT</option>
+              <option name='late' value='LATE'>LATE</option>
             </select>
           </div>
           <div className="form-group">
             <label>Lease End Date</label>
-            <input className="form-control" />
+            <input className="form-control" name='dateInput' value={formValues.dateInput} onChange={handleChangeForm} />
           </div>
-          <button className="btn btn-primary">Save</button>
-          <button className="btn">Cancel</button>
+          <button className="btn btn-primary" onClick={handleSave}>Save</button>
+          <button className="btn" onClick={handleDelete}>Cancel</button>
         </form>
       </div>
     </>

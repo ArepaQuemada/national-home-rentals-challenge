@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react"
 
-export const useAsync = (service) => {
+export const useAsync = ({ service,  callOnLoad }) => {
     const [ asyncState, setAsyncState ] = useState({
         data: null,
-        isLoading: false
+        isLoading: false,
     })
 
     const setLoading = (isLoading) => {
@@ -14,10 +14,12 @@ export const useAsync = (service) => {
         setAsyncState(prev => ({...prev, data: data }))
     }
 
-    const doCallService = useCallback(async() => {
+    const doCallService = useCallback(async(newService) => {
+        let serviceToCall = newService ?? service
+        
         try {
             setLoading(true)
-            const data = await service?.()
+            const data = await serviceToCall?.()
             setDataRes(data)
         } catch(err) {
             console.log(err)
@@ -27,9 +29,11 @@ export const useAsync = (service) => {
     }, [ service ])
 
     useEffect(() => {
-        doCallService()
-    }, [doCallService])
+        if (callOnLoad) {
+            doCallService()
+        }
+    }, [doCallService, callOnLoad])
     
 
-    return asyncState
+    return { asyncState, doCallService } 
 }
