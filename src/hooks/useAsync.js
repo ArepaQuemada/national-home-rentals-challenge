@@ -39,6 +39,12 @@ export const useAsync = ({ service,  callOnLoad }) => {
         }
     }, [asyncState.data, callService])
 
+    const doCallDelete = useCallback(async (service, params) => {
+        const response = await callService?.(service, params)
+        if (response) {
+            setDataRes(asyncState.data.filter(item => item.id !== params))
+        }
+    }, [asyncState.data, callService])
 
     useEffect(() => {
         if (callOnLoad) {
@@ -46,5 +52,5 @@ export const useAsync = ({ service,  callOnLoad }) => {
         }
     }, [doCallService, callOnLoad])
     
-    return { asyncState, doCallService, doCallAdd } 
+    return { asyncState, doCallService, doCallAdd, doCallDelete } 
 }

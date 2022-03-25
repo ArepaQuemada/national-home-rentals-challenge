@@ -6,7 +6,8 @@ function App() {
   
   const {
     asyncState: { data },
-    doCallAdd
+    doCallAdd,
+    doCallDelete
   } = useAsync({ service: Service.getTenants, callOnLoad: true });
 
   const [formValues, setFormValues] = useState({
@@ -25,8 +26,8 @@ function App() {
     });
   }
 
-  const handleDelete = (e) => {
-    e.preventDefault()
+  const handleDelete = (id) => {
+    doCallDelete(Service.deleteTenant, id)
   }
 
   const handleChangeForm = (e) => {
@@ -73,7 +74,10 @@ function App() {
                 <td>{item.paymentStatus}</td>
                 <td>{item.leaseEndDate}</td>
                 <td>
-                  <button className="btn btn-danger">Delete</button>
+                  <button className="btn btn-danger" onClick={(e) => {
+                    e.preventDefault()
+                    handleDelete(item.id)
+                  }}>Delete</button>
                 </td>
               </tr>
             ))}
@@ -132,7 +136,7 @@ function App() {
             <button className="btn btn-primary" onClick={handleSave}>
               Save
             </button>
-            <button className="btn" onClick={handleDelete}>
+            <button className="btn">
               Cancel
             </button>
           </form>
