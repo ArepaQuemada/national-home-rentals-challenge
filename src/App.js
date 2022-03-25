@@ -17,6 +17,25 @@ function App() {
     showForm: false
   })
 
+  const [filters, setActiveFilter] = useState('all')
+
+  const filterMethods = {
+    all: () => data,
+    payment: () => data.filter(item => item.paymentStatus === 'LATE'),
+    lease: () => {
+      const monthsBtwnDates = (startDate, endDate) => {
+        startDate = new Date(startDate);
+        endDate = new Date(endDate);
+          return Math.max(
+            (endDate.getFullYear() - startDate.getFullYear()) * 12 +
+              endDate.getMonth() -
+              startDate.getMonth(),
+            0
+          )};
+          return data.filter(item => monthsBtwnDates(Date.now(), item.leaseEndDate) === 0)
+    }
+  }
+
   const handleSave = (e) => {
     e.preventDefault()
     doCallAdd(Service.addTenant, {
@@ -35,23 +54,27 @@ function App() {
     setFormValues((prev) => ({ ...prev, [name]: value }))
   };
 
+  const handleFilter = (e) => {
+    setActiveFilter(e.target.name)
+  }
+  
   return (
     <>
       <div className="container">
         <h1>Tenants</h1>
-        <ul className="nav nav-tabs">
-          <li className="nav-item">
-            <a className="nav-link active" href="#">
+        <ul className="nav nav-tabs" onClick={handleFilter}>
+          <li className="nav-item" value='all'>
+            <a className="nav-link active" href="#" name='all'>
               All
             </a>
           </li>
           <li className="nav-item">
-            <a className="nav-link" href="#">
+            <a className="nav-link" href="#" name='payment'>
               Payment is late
             </a>
           </li>
           <li className="nav-item">
-            <a className="nav-link" href="#">
+            <a className="nav-link" href="#" name='lease'>
               Lease ends in less than a month
             </a>
           </li>
@@ -67,7 +90,7 @@ function App() {
             </tr>
           </thead>
           <tbody>
-            {data?.map((item) => (
+            {(filterMethods[filters]())?.map((item) => (
               <tr key={item.id}>
                 <th>{item.id}</th>
                 <td>{item.name}</td>
