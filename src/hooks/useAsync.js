@@ -14,17 +14,31 @@ export const useAsync = ({ service,  callOnLoad }) => {
         setAsyncState(prev => ({...prev, data: data }))
     }
 
-    const doCallService = useCallback(async() => {
+    const callService = useCallback(async (service, params) => {
         try {
             setLoading(true)
-            const data = await service?.()
-            setDataRes(data)
+            const data = await service?.(params)
+            return data
         } catch(err) {
             console.log(err)
         } finally {
             setLoading(false)
         }
-    }, [ service ])
+    }, [])
+
+    const doCallService = useCallback(async() => {
+        const data = await callService(service)
+        setDataRes(data)
+
+    }, [callService, service])
+
+    const doCallAdd = useCallback(async(service, params) => {
+        const response = await callService?.(service, params)
+        if (response) {
+            setDataRes([...asyncState.data, response])
+        }
+    }, [asyncState.data, callService])
+
 
     useEffect(() => {
         if (callOnLoad) {
@@ -32,17 +46,5 @@ export const useAsync = ({ service,  callOnLoad }) => {
         }
     }, [doCallService, callOnLoad])
     
-    const doCallAdd = useCallback(async(service, params) => {
-        try {
-            setLoading(true)
-            const response = await service?.(params)
-            setDataRes([...asyncState.data, response])
-        } catch(err) {
-            console.log(err)
-        } finally {
-            setLoading(false)
-        }
-    }, [asyncState.data])
-
     return { asyncState, doCallService, doCallAdd } 
 }
